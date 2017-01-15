@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C602D07B1E2BFC8F0092013D /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C602D0791E2BFC8F0092013D /* Model.xcdatamodeld */; };
+		C602D0881E2BFF0D0092013D /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C602D0841E2BFF0D0092013D /* Pin.swift */; };
+		C602D0891E2BFF0D0092013D /* Pin+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C602D0851E2BFF0D0092013D /* Pin+CoreDataProperties.swift */; };
+		C602D08A1E2BFF0D0092013D /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C602D0861E2BFF0D0092013D /* Photo.swift */; };
+		C602D08B1E2BFF0E0092013D /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C602D0871E2BFF0D0092013D /* Photo+CoreDataProperties.swift */; };
+		C602D08D1E2C019D0092013D /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = C602D08C1E2C019D0092013D /* CoreDataStack.swift */; };
 		C6B3828F1E25D1B400277718 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B3828E1E25D1B400277718 /* AppDelegate.swift */; };
 		C6B382911E25D1B400277718 /* TravelLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B382901E25D1B400277718 /* TravelLocationsViewController.swift */; };
 		C6B382941E25D1B400277718 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C6B382921E25D1B400277718 /* Main.storyboard */; };
@@ -17,6 +23,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C602D07A1E2BFC8F0092013D /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		C602D0841E2BFF0D0092013D /* Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Pin.swift; path = ../Pin.swift; sourceTree = "<group>"; };
+		C602D0851E2BFF0D0092013D /* Pin+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Pin+CoreDataProperties.swift"; path = "../Pin+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C602D0861E2BFF0D0092013D /* Photo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Photo.swift; path = ../Photo.swift; sourceTree = "<group>"; };
+		C602D0871E2BFF0D0092013D /* Photo+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Photo+CoreDataProperties.swift"; path = "../Photo+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C602D08C1E2C019D0092013D /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		C6B3828B1E25D1B400277718 /* VirtualTourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualTourist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6B3828E1E25D1B400277718 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C6B382901E25D1B400277718 /* TravelLocationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelLocationsViewController.swift; sourceTree = "<group>"; };
@@ -72,6 +84,12 @@
 		C6B382A01E25D23F00277718 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C602D0841E2BFF0D0092013D /* Pin.swift */,
+				C602D0851E2BFF0D0092013D /* Pin+CoreDataProperties.swift */,
+				C602D0861E2BFF0D0092013D /* Photo.swift */,
+				C602D0871E2BFF0D0092013D /* Photo+CoreDataProperties.swift */,
+				C602D0791E2BFC8F0092013D /* Model.xcdatamodeld */,
+				C602D08C1E2C019D0092013D /* CoreDataStack.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -169,6 +187,12 @@
 			files = (
 				C6B382911E25D1B400277718 /* TravelLocationsViewController.swift in Sources */,
 				C6B3828F1E25D1B400277718 /* AppDelegate.swift in Sources */,
+				C602D08A1E2BFF0D0092013D /* Photo.swift in Sources */,
+				C602D07B1E2BFC8F0092013D /* Model.xcdatamodeld in Sources */,
+				C602D0891E2BFF0D0092013D /* Pin+CoreDataProperties.swift in Sources */,
+				C602D08D1E2C019D0092013D /* CoreDataStack.swift in Sources */,
+				C602D0881E2BFF0D0092013D /* Pin.swift in Sources */,
+				C602D08B1E2BFF0E0092013D /* Photo+CoreDataProperties.swift in Sources */,
 				C6B382A61E26EDFE00277718 /* UserDefaultsHelper.swift in Sources */,
 				C6B382A41E25D93900277718 /* PhotoAlbumViewController.swift in Sources */,
 			);
@@ -332,8 +356,22 @@
 				C6B3829F1E25D1B400277718 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		C602D0791E2BFC8F0092013D /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				C602D07A1E2BFC8F0092013D /* Model.xcdatamodel */,
+			);
+			currentVersion = C602D07A1E2BFC8F0092013D /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = C6B382831E25D1B400277718 /* Project object */;
 }
