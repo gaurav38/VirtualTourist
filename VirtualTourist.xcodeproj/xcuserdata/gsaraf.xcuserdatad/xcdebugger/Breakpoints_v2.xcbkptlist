@@ -9,13 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "VirtualTourist/TravelLocationsViewController.swift"
-            timestampString = "506290841.14893"
+            filePath = "VirtualTourist/PhotoAlbumViewController.swift"
+            timestampString = "506293666.279542"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "71"
-            endingLineNumber = "71"
-            landmarkName = "dropPin(gestureRecognizer:)"
+            startingLineNumber = "34"
+            endingLineNumber = "34"
+            landmarkName = "setUpMapView()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

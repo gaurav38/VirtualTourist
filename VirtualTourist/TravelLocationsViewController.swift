@@ -89,7 +89,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
         FetchPin(coordinates: (view.annotation?.coordinate)!) { (error, pin) -> Void in
-            if error != nil {
+            if let pin = pin {
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotoAlbumViewController") as! PhotoAlbumViewController
                 vc.pin = pin
                 self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "OK", style: UIBarButtonItemStyle.plain, target: nil, action: nil)
@@ -144,8 +144,9 @@ extension TravelLocationsViewController {
         fr.predicate = andPredicate
         
         fetchPins()
-        let selectedPin = fetchedResultsController?.fetchedObjects?[0]
-        callback(nil, selectedPin as? Pin)
+        let selectedPin = fetchedResultsController?.fetchedObjects?[0] as! Pin
+        print("Found a saved pin. latitude = \(selectedPin.latitude), longitude = \(selectedPin.longitude)")
+        callback(nil, selectedPin)
     }
     
     func fetchSavedPins() {
