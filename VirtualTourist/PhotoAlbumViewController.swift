@@ -8,14 +8,13 @@
 
 import UIKit
 import MapKit
+import CoreData
 
-class PhotoAlbumViewController: UIViewController {
+class PhotoAlbumViewController: CoreDataCollectionViewController {
 
     @IBOutlet weak var mapView: MKMapView!
-    @IBOutlet weak var collectionView: UICollectionView!
     
-    var pinCoordinates: CLLocationCoordinate2D?
-    var virtualTouristClient = VirtualTouristClient()
+    var pin: Pin?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +30,8 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
     func setUpMapView() {
         mapView.delegate = self
         
-        if let pinCoordinates = pinCoordinates {
+        if let pin = pin {
+            let pinCoordinates = CLLocationCoordinate2DMake(pin.latitude, pin.longitude)
             let span = MKCoordinateSpanMake(0.005, 0.005)
             let region = MKCoordinateRegion(center: pinCoordinates, span: span)
             mapView.setRegion(region, animated: true)
@@ -47,5 +47,26 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
         let pin = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "pin")
         pin.animatesDrop = true
         return pin
+    }
+}
+
+extension PhotoAlbumViewController {
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageViewCell", for: indexPath) 
+        return cell
+    }
+}
+
+extension PhotoAlbumViewController {
+    
+    func fetchPhotos() {
+        if let pin = pin {
+            let fr = NSFetchRequest<Photo>(entityName: "Photo")
+            fr.sortDescriptors = [NSSortDescriptor(key: "pin", ascending: true)]
+            let pred = NSPredicate(format: "pin = %@", argumentArray: [pin])
+            fr.predicate = pred
+//            let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: (fetchedResultsController?.managedObjectContext)!, sectionNameKeyPath: nil, cacheName: nil)
+        }
     }
 }

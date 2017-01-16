@@ -10,6 +10,8 @@ import Foundation
 
 class VirtualTouristClient {
     
+    static let shared = VirtualTouristClient()
+    
     func searchByLatLon(latitude: Double, longitude: Double, callback: @escaping (_ error: String?, _ response: [FlickrPhoto]?) -> ()) {
         let methodParameters = [
             Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,

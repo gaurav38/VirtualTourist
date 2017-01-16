@@ -128,7 +128,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="collectionView" destination="Sm9-Oq-aRt" id="xsd-SS-eAh"/>
+                        <outlet property="collectionView" destination="Sm9-Oq-aRt" id="scE-Xh-zVV"/>
                         <outlet property="mapView" destination="xOj-xQ-nx2" id="1eR-lU-Jj1"/>
                     </connections>
                 </viewController>

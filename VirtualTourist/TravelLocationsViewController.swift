@@ -9,15 +9,17 @@
 import UIKit
 import MapKit
 import CoreLocation
+import CoreData
 
-class TravelLocationsViewController: UIViewController {
+class TravelLocationsViewController: CoreDataCollectionViewController {
 
     @IBOutlet weak var mapView: MKMapView!
     
     var gestureRecognizer: UILongPressGestureRecognizer!
-    var appDelegate = UIApplication.shared.delegate
     var locationManager = CLLocationManager()
-    var selectedCoordinate: CLLocationCoordinate2D?
+    var fr: NSFetchRequest<NSFetchRequestResult>!
+    
+    var savedPins = [Pin]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +32,7 @@ class TravelLocationsViewController: UIViewController {
                           longitudeDelta: UserDefaultsHelper.getSavedLongitudeDelta())
         }
         setUpMapView()
+        //fetchSavedPins()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -40,12 +43,12 @@ class TravelLocationsViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = false
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let destination = segue.destination as! PhotoAlbumViewController
-        if let selectedCoordinate = selectedCoordinate {
-            destination.pinCoordinates = selectedCoordinate
-        }
-    }
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        let destination = segue.destination as! PhotoAlbumViewController
+//        if let selectedCoordinate = selectedCoordinate {
+//            destination.pinCoordinates = selectedCoordinate
+//        }
+//    }
 
 }
 
@@ -63,6 +66,10 @@ extension TravelLocationsViewController: MKMapViewDelegate {
         let annotation = MKPointAnnotation()
         annotation.coordinate = newCoordinates
         mapView.addAnnotation(annotation)
+        
+        _ = Pin(latitude: newCoordinates.latitude, longitude: newCoordinates.longitude, context: delegate.stack.context)
+        delegate.stack.save()
+        //fetchSavedPins()
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -80,12 +87,17 @@ extension TravelLocationsViewController: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        selectedCoordinate = view.annotation?.coordinate
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotoAlbumViewController") as! PhotoAlbumViewController
-        vc.pinCoordinates = selectedCoordinate
-        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "OK", style: UIBarButtonItemStyle.plain, target: nil, action: nil)
-        self.navigationController?.pushViewController(vc, animated: true)
-        //self.performSegue(withIdentifier: "showAlbum", sender: self)
+        
+        FetchPin(coordinates: (view.annotation?.coordinate)!) { (error, pin) -> Void in
+            if error != nil {
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotoAlbumViewController") as! PhotoAlbumViewController
+                vc.pin = pin
+                self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "OK", style: UIBarButtonItemStyle.plain, target: nil, action: nil)
+                self.navigationController?.pushViewController(vc, animated: true)
+            } else {
+                print(error!)
+            }
+        }
     }
     
     func centerMapView(toCoordinate coordinate: CLLocationCoordinate2D, latitudeDelta: CLLocationDegrees, longitudeDelta: CLLocationDegrees) {
@@ -115,6 +127,48 @@ extension TravelLocationsViewController: CLLocationManagerDelegate {
             UserDefaultsHelper.save(coordinates: locValue)
             UserDefaultsHelper.save(latitudeDelta: 0.005, longitudeDelta: 0.005)
             centerMapView(toCoordinate: locValue, latitudeDelta: CLLocationDegrees(0.005), longitudeDelta: CLLocationDegrees(0.055))
+        }
+    }
+}
+
+extension TravelLocationsViewController {
+    func FetchPin(coordinates: CLLocationCoordinate2D, callback: @escaping (_ error: String?, _ pin: Pin?) -> Void) {
+        fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+        fr.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true),
+                              NSSortDescriptor(key: "longitude", ascending: true)]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
+        
+        let latPred = NSPredicate(format: "latitude = %@", argumentArray: [coordinates.latitude])
+        let lonPred = NSPredicate(format: "longitude = %@", argumentArray: [coordinates.longitude])
+        let andPredicate = NSCompoundPredicate(type: NSCompoundPredicate.LogicalType.and, subpredicates: [latPred, lonPred])
+        fr.predicate = andPredicate
+        
+        fetchPins()
+        let selectedPin = fetchedResultsController?.fetchedObjects?[0]
+        callback(nil, selectedPin as? Pin)
+    }
+    
+    func fetchSavedPins() {
+        fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+        fr.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true),
+                              NSSortDescriptor(key: "longitude", ascending: true)]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
+        
+        fetchPins()
+        savedPins.removeAll()
+        savedPins = (fetchedResultsController?.fetchedObjects as? [Pin])!
+        
+        print("Fetched saved pins")
+        for pin in savedPins {
+            print("latitude = \(pin.latitude), longitude = \(pin.longitude)")
+        }
+    }
+    
+    func fetchPins() {
+        do {
+            try fetchedResultsController?.performFetch()
+        } catch {
+            print("Error fetching Pin")
         }
     }
 }
