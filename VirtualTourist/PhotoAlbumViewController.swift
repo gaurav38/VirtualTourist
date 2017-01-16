@@ -15,6 +15,7 @@ class PhotoAlbumViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     
     var pinCoordinates: CLLocationCoordinate2D?
+    var virtualTouristClient = VirtualTouristClient()
     
     override func viewDidLoad() {
         super.viewDidLoad()
