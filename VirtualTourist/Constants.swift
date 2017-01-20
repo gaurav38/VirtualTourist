@@ -35,6 +35,7 @@ extension VirtualTouristClient {
             static let Text = "text"
             static let BoundingBox = "bbox"
             static let Page = "page"
+            static let PerPage = "per_page"
         }
         
         // MARK: Flickr Parameter Values
@@ -47,6 +48,7 @@ extension VirtualTouristClient {
             static let GalleryID = "5704-72157622566655097"
             static let MediumURL = "url_m"
             static let UseSafeSearch = "1"
+            static let PerPage = "50"
         }
         
         // MARK: Flickr Response Keys

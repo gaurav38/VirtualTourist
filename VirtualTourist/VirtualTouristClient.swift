@@ -12,7 +12,7 @@ class VirtualTouristClient {
     
     static let shared = VirtualTouristClient()
     
-    func searchByLatLon(latitude: Double, longitude: Double, callback: @escaping (_ error: String?, _ response: [FlickrPhoto]?) -> ()) {
+    func searchByLatLon(latitude: Double, longitude: Double, pageNumber: Int16, callback: @escaping (_ error: String?, _ response: [FlickrPhoto]?) -> ()) {
         let methodParameters = [
             Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
             Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
@@ -20,7 +20,9 @@ class VirtualTouristClient {
             Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
             Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
             Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
-            Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
+            Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback,
+            Constants.FlickrParameterKeys.Page: String(pageNumber),
+            Constants.FlickrParameterKeys.PerPage: Constants.FlickrParameterValues.PerPage
         ]
         
         // create session and request
@@ -79,7 +81,8 @@ class VirtualTouristClient {
             var callbackData = [FlickrPhoto]()
             
             for photo in photos {
-                let flickrPhoto = FlickrPhoto(id: photo[Constants.FlickrResponseKeys.Id] as! Double, url: photo[Constants.FlickrParameterValues.MediumURL] as! NSURL)
+                print(photo)
+                let flickrPhoto = FlickrPhoto(id: photo[Constants.FlickrResponseKeys.Id] as! String, url: photo[Constants.FlickrParameterValues.MediumURL] as! String)
                 callbackData.append(flickrPhoto)
             }
             

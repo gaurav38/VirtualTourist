@@ -2,7 +2,7 @@
 //  Photo+CoreDataProperties.swift
 //  VirtualTourist
 //
-//  Created by Gaurav Saraf on 1/16/17.
+//  Created by Gaurav Saraf on 1/17/17.
 //  Copyright © 2017 Gaurav Saraf. All rights reserved.
 //
 

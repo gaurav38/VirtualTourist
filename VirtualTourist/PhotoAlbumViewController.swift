@@ -18,8 +18,9 @@ class PhotoAlbumViewController: CoreDataCollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setUpMapView()
+        collectionView.delegate = self
+        print("Number of photos = \((pin?.photos?.count)!)")
     }
 
     @IBAction func newCollectionButtonPressed(_ sender: Any) {
@@ -53,20 +54,19 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
 extension PhotoAlbumViewController {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageViewCell", for: indexPath) 
-        return cell
-    }
-}
-
-extension PhotoAlbumViewController {
-    
-    func fetchPhotos() {
-        if let pin = pin {
-            let fr = NSFetchRequest<Photo>(entityName: "Photo")
-            fr.sortDescriptors = [NSSortDescriptor(key: "pin", ascending: true)]
-            let pred = NSPredicate(format: "pin = %@", argumentArray: [pin])
-            fr.predicate = pred
-//            let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: (fetchedResultsController?.managedObjectContext)!, sectionNameKeyPath: nil, cacheName: nil)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageViewCell", for: indexPath) as! ImageViewCell
+        
+        let photo = fetchedResultsController?.object(at: indexPath) as? Photo
+        
+        if let photo = photo {
+            if photo.image == nil {
+                cell.activityIndicator.startAnimating()
+            } else {
+                cell.image.image = UIImage(data: photo.image! as Data)
+                cell.activityIndicator.stopAnimating()
+            }
         }
+        
+        return cell
     }
 }

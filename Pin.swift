@@ -2,7 +2,7 @@
 //  Pin+CoreDataClass.swift
 //  VirtualTourist
 //
-//  Created by Gaurav Saraf on 1/16/17.
+//  Created by Gaurav Saraf on 1/17/17.
 //  Copyright © 2017 Gaurav Saraf. All rights reserved.
 //
 
@@ -11,7 +11,7 @@ import CoreData
 
 
 public class Pin: NSManagedObject {
-    convenience init(latitude: Double, longitude: Double, context: NSManagedObjectContext) {
+    convenience init(latitude: Double, longitude: Double, flickrPage: Int16, context: NSManagedObjectContext) {
         
         // An EntityDescription is an object that has access to all
         // the information you provided in the Entity part of the model
@@ -20,6 +20,7 @@ public class Pin: NSManagedObject {
             self.init(entity: ent, insertInto: context)
             self.latitude = latitude
             self.longitude = longitude
+            self.flickrPage = flickrPage
         } else {
             fatalError("Unable to find Entity name Pin!")
         }

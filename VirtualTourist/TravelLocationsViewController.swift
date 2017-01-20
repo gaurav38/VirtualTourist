@@ -11,13 +11,15 @@ import MapKit
 import CoreLocation
 import CoreData
 
-class TravelLocationsViewController: CoreDataCollectionViewController {
+class TravelLocationsViewController: UIViewController {
 
     @IBOutlet weak var mapView: MKMapView!
     
     var gestureRecognizer: UILongPressGestureRecognizer!
     var locationManager = CLLocationManager()
     var fr: NSFetchRequest<NSFetchRequestResult>!
+    var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>!
+    let delegate = UIApplication.shared.delegate as! AppDelegate
     
     var savedPins = [Pin]()
     
@@ -75,14 +77,22 @@ extension TravelLocationsViewController: MKMapViewDelegate {
     }
     
     func dropPin(gestureRecognizer: UIGestureRecognizer){
-        let touchPoint = gestureRecognizer.location(in: mapView)
-        let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = newCoordinates
-        mapView.addAnnotation(annotation)
         
-        _ = Pin(latitude: newCoordinates.latitude, longitude: newCoordinates.longitude, context: (fetchedResultsController?.managedObjectContext)!)
-        delegate.stack.save()
+        if gestureRecognizer.state == UIGestureRecognizerState.ended {
+            let touchPoint = gestureRecognizer.location(in: mapView)
+            let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = newCoordinates
+            mapView.addAnnotation(annotation)
+            
+            let pin = Pin(latitude: newCoordinates.latitude, longitude: newCoordinates.longitude, flickrPage: 1, context: delegate.stack.backgroundContext)
+            
+            DownloadService.shared.downloadAndSavePhotos(pin: pin) { (error, result) in
+                if result != nil {
+                    print("Created a pin and downloaded all photos")
+                }
+            }
+        }
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -103,9 +113,17 @@ extension TravelLocationsViewController: MKMapViewDelegate {
         
         searchPin(coordinates: (view.annotation?.coordinate)!) { (error, pin) -> Void in
             if let pin = pin {
+                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
+                fetchRequest.sortDescriptors = [NSSortDescriptor(key: "pin", ascending: true)]
+                let predicate = NSPredicate(format: "pin = %@", argumentArray: [pin])
+                fetchRequest.predicate = predicate
+                let fc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
+                
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotoAlbumViewController") as! PhotoAlbumViewController
                 vc.pin = pin
+                vc.fetchedResultsController = fc
                 self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "OK", style: UIBarButtonItemStyle.plain, target: nil, action: nil)
+                
                 self.navigationController?.pushViewController(vc, animated: true)
             } else {
                 print(error!)
