@@ -81,9 +81,10 @@ class VirtualTouristClient {
             var callbackData = [FlickrPhoto]()
             
             for photo in photos {
-                print(photo)
-                let flickrPhoto = FlickrPhoto(id: photo[Constants.FlickrResponseKeys.Id] as! String, url: photo[Constants.FlickrParameterValues.MediumURL] as! String)
-                callbackData.append(flickrPhoto)
+                if let photoId = photo[Constants.FlickrResponseKeys.Id] as? String, let photoUrl = photo[Constants.FlickrParameterValues.MediumURL] as? String {
+                    let flickrPhoto = FlickrPhoto(id: photoId, url: photoUrl)
+                    callbackData.append(flickrPhoto)
+                }
             }
             
             callback(nil, callbackData)

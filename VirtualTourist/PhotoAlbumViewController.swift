@@ -19,11 +19,11 @@ class PhotoAlbumViewController: CoreDataCollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        updateItemSizeBasedOnOrientation()
         setUpMapView()
         collectionView.delegate = self
         print("Number of photos = \((pin?.photos?.count)!)")
         collectionView.dataSource = self
-        updateItemSizeBasedOnOrientation()
     }
     
     func updateItemSizeBasedOnOrientation()
@@ -97,6 +97,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
         if let photo = photo {
             if photo.image == nil {
                 cell.activityIndicator.startAnimating()
+                DownloadService.shared.downloadPhoto(for: photo)
             } else {
                 cell.image.image = UIImage(data: photo.image! as Data)
                 cell.activityIndicator.stopAnimating()

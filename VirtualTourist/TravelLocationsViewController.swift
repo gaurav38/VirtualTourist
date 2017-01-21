@@ -87,9 +87,15 @@ extension TravelLocationsViewController: MKMapViewDelegate {
             
             let pin = Pin(latitude: newCoordinates.latitude, longitude: newCoordinates.longitude, flickrPage: 1, context: delegate.stack.backgroundContext)
             
-            DownloadService.shared.downloadAndSavePhotos(pin: pin) { (error, result) in
+            do {
+                try delegate.stack.backgroundContext.save()
+            } catch {
+                print("Error saving Pin")
+            }
+            
+            DownloadService.shared.searchFlickrAndSavePhotos(pin: pin) { (error, result) in
                 if result != nil {
-                    print("Created a pin and downloaded all photos")
+                    print("Flickr search finished.")
                 }
             }
         }
