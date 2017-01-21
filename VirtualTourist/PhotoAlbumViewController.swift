@@ -13,6 +13,7 @@ import CoreData
 class PhotoAlbumViewController: CoreDataCollectionViewController {
 
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     var pin: Pin?
     
@@ -21,6 +22,41 @@ class PhotoAlbumViewController: CoreDataCollectionViewController {
         setUpMapView()
         collectionView.delegate = self
         print("Number of photos = \((pin?.photos?.count)!)")
+        collectionView.dataSource = self
+        updateItemSizeBasedOnOrientation()
+    }
+    
+    func updateItemSizeBasedOnOrientation()
+    {
+        var width: CGFloat = 0.0
+        var height: CGFloat = 0.0
+        let space: CGFloat = 3.0
+        
+        if UIDeviceOrientationIsPortrait(UIDevice.current.orientation) {
+            width = (collectionView.frame.size.width - (2 * space)) / 3.0
+            height = (collectionView.frame.size.height - (3 * space)) / 4.0
+        } else if UIDeviceOrientationIsLandscape(UIDevice.current.orientation) {
+            width = (collectionView.frame.size.width - (4 * space)) / 5.0
+            height = (collectionView.frame.size.height - (2 * space)) / 3.0
+        }
+        if height > 0 && width > 0 {
+            var itemSize: CGSize = CGSize()
+            itemSize.height = height
+            itemSize.width = width
+            
+            flowLayout.minimumInteritemSpacing = space
+            flowLayout.itemSize = itemSize
+        }
+    }
+    
+    func subscribeToOrientationChangeNotification()
+    {
+        NotificationCenter.default.addObserver(self, selector: #selector(updateItemSizeBasedOnOrientation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+    }
+    
+    func unsubscribeToOrientationChangeNotification()
+    {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
     }
 
     @IBAction func newCollectionButtonPressed(_ sender: Any) {
@@ -51,7 +87,7 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
     }
 }
 
-extension PhotoAlbumViewController {
+extension PhotoAlbumViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageViewCell", for: indexPath) as! ImageViewCell

@@ -39,7 +39,7 @@ class CoreDataCollectionViewController: UIViewController, UICollectionViewDelega
 // MARK: - CoreDataTableViewController (Table Data Source)
 
 extension CoreDataCollectionViewController {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
+    @objc(numberOfSectionsInCollectionView:) func numberOfSections(in collectionView: UICollectionView) -> Int {
         if let fc = fetchedResultsController {
             return (fc.sections?.count)!
         } else {

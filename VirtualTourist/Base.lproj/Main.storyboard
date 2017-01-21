@@ -153,6 +153,7 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="Sm9-Oq-aRt" id="scE-Xh-zVV"/>
+                        <outlet property="flowLayout" destination="fVV-It-6dG" id="RXE-8I-3Bw"/>
                         <outlet property="mapView" destination="xOj-xQ-nx2" id="1eR-lU-Jj1"/>
                     </connections>
                 </viewController>
