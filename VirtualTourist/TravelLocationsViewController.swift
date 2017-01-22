@@ -20,11 +20,18 @@ class TravelLocationsViewController: UIViewController {
     var fr: NSFetchRequest<NSFetchRequestResult>!
     var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>!
     let delegate = UIApplication.shared.delegate as! AppDelegate
+    var isFirstLaunch: Bool!
     
     var savedPins = [Pin]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        isFirstLaunch = UserDefaultsHelper.isFirstLaunch()
+        fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+        fr.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true),
+                              NSSortDescriptor(key: "longitude", ascending: true)]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
         
         if UserDefaultsHelper.isFirstLaunch() {
             setUpLocationManager()
@@ -32,20 +39,11 @@ class TravelLocationsViewController: UIViewController {
             centerMapView(toCoordinate: UserDefaultsHelper.getSavedCoordinates(),
                           latitudeDelta: UserDefaultsHelper.getSavedLatitudeDelta(),
                           longitudeDelta: UserDefaultsHelper.getSavedLongitudeDelta())
+            performFetch()
+            savedPins = (fetchedResultsController?.fetchedObjects as? [Pin])!
+            print("Fetched saved pins")
         }
-        fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
-        fr.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true),
-                              NSSortDescriptor(key: "longitude", ascending: true)]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
         
-        performFetch()
-        savedPins = (fetchedResultsController?.fetchedObjects as? [Pin])!
-        
-        print("Fetched saved pins")
-        for savedObject in (fetchedResultsController?.fetchedObjects)! {
-            let pin = savedObject as! Pin
-            print("latitude = \(pin.latitude), longitude = \(pin.longitude)")
-        }
         setUpMapView()
     }
     
@@ -171,11 +169,12 @@ extension TravelLocationsViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let locValue:CLLocationCoordinate2D = manager.location!.coordinate
         
-        if UserDefaultsHelper.isFirstLaunch() {
+        if isFirstLaunch == true {
             print("locations = \(locValue.latitude) \(locValue.longitude)")
             UserDefaultsHelper.save(coordinates: locValue)
             UserDefaultsHelper.save(latitudeDelta: 0.005, longitudeDelta: 0.005)
             centerMapView(toCoordinate: locValue, latitudeDelta: CLLocationDegrees(0.005), longitudeDelta: CLLocationDegrees(0.055))
+            isFirstLaunch = false
         }
     }
 }
