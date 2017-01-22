@@ -56,6 +56,14 @@ class TravelLocationsViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.isNavigationBarHidden = false
     }
+    
+    func displayError(error: String) {
+        DispatchQueue.main.async {
+            let alertController = UIAlertController(title: "Error!", message: error, preferredStyle: UIAlertControllerStyle.alert)
+            alertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+        }
+    }
 }
 
 extension TravelLocationsViewController: MKMapViewDelegate {
@@ -98,9 +106,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
                     print("Flickr search finished.")
                 } else {
                     if let error = error {
-                        let alertController = UIAlertController(title: "Error!", message: error, preferredStyle: UIAlertControllerStyle.alert)
-                        alertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
-                        self.present(alertController, animated: true, completion: nil)
+                        self.displayError(error: error)
                     }
                 }
             }

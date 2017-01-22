@@ -94,12 +94,12 @@ extension CoreDataCollectionViewController: NSFetchedResultsControllerDelegate {
         case .insert:
             insertedItemsIndexPath.append(newIndexPath!)
         case .delete:
-            collectionView.deleteItems(at: [indexPath!])
+            deletedItemsIndexPath.append(indexPath!)
         case .update:
-            collectionView.reloadItems(at: [indexPath!])
+            updatedItemsIndexPath.append(indexPath!)
         case .move:
-            collectionView.deleteItems(at: [indexPath!])
-            collectionView.insertItems(at: [newIndexPath!])
+            deletedItemsIndexPath.append(indexPath!)
+            insertedItemsIndexPath.append(newIndexPath!)
         }
     }
     
