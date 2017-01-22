@@ -94,8 +94,14 @@ extension TravelLocationsViewController: MKMapViewDelegate {
             }
             
             DownloadService.shared.searchFlickrAndSavePhotos(pin: pin) { (error, result) in
-                if result != nil {
+                if result! {
                     print("Flickr search finished.")
+                } else {
+                    if let error = error {
+                        let alertController = UIAlertController(title: "Error!", message: error, preferredStyle: UIAlertControllerStyle.alert)
+                        alertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                        self.present(alertController, animated: true, completion: nil)
+                    }
                 }
             }
         }

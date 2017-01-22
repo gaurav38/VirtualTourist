@@ -23,7 +23,10 @@ class DownloadService {
                         photoToSave.pin = pin
                     }
                     print("Created all Photo entities.")
+                    callback(nil, true)
                 }
+            } else {
+                callback("Error searching photos in Flickr.", false)
             }
         }
     }
