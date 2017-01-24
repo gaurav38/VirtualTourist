@@ -98,7 +98,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
                 } catch {
                     print("Error saving Pin")
                 }
-                DownloadService.shared.searchFlickrAndSavePhotos(pin: pin) { (error, result) in
+                DownloadService.shared.searchFlickrAndSavePhotos(pin: pin, pageNumber: 1) { (error, result) in
                     if result {
                         print("Flickr search finished.")
                     } else {

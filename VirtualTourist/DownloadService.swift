@@ -13,13 +13,13 @@ class DownloadService {
     
     static let shared = DownloadService()
     var delegate = UIApplication.shared.delegate as! AppDelegate
-    var photosToDownload = Queue<Photo>()
     let session = URLSession.shared
     
-    func searchFlickrAndSavePhotos(pin: Pin, callback: @escaping (_ error: String?, _ result: Bool) -> Void) {
-        VirtualTouristClient.shared.searchByLatLon(latitude: pin.latitude, longitude: pin.longitude, pageNumber: pin.flickrPage) { (error, photos) in
+    func searchFlickrAndSavePhotos(pin: Pin, pageNumber: Int16, callback: @escaping (_ error: String?, _ result: Bool) -> Void) {
+        VirtualTouristClient.shared.searchByLatLon(latitude: pin.latitude, longitude: pin.longitude, pageNumber: pageNumber) { (error, photos, numberOfPages) in
             if photos != nil {
                 self.delegate.stack.performBackgroundBatchOperation { (workerContext) in
+                    pin.flickrPage = numberOfPages!
                     for photo in photos! {
                         let photoToSave = Photo(image: nil, imageUrl: photo.photoUrl, context: workerContext)
                         photoToSave.pin = pin
@@ -34,18 +34,6 @@ class DownloadService {
                 }
             } else {
                 callback("Error searching photos in Flickr.", false)
-            }
-        }
-    }
-    
-    func downloadQueueItems() {
-        while !photosToDownload.isEmpty {
-            if let photo = photosToDownload.dequeue() {
-                self.delegate.stack.performBackgroundBatchOperation { (workerContext) in
-                    print("Downloading image: \(photo.imageUrl)")
-                    let imageData = NSData(contentsOf: URL(string: photo.imageUrl!)!)
-                    photo.image = imageData
-                }
             }
         }
     }

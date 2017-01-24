@@ -16,16 +16,14 @@ class PhotoAlbumViewController: CoreDataCollectionViewController {
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     var pin: Pin?
-    var currentPage: Int16!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateItemSizeBasedOnOrientation()
         setUpMapView()
         collectionView.delegate = self
         print("Number of photos = \((pin?.photos?.count)!)")
         collectionView.dataSource = self
-        currentPage = pin?.flickrPage
+        updateItemSizeBasedOnOrientation()
     }
     
     func updateItemSizeBasedOnOrientation()
@@ -155,16 +153,10 @@ extension PhotoAlbumViewController {
     }
     
     func getNewPhotos(newPin: Pin) {
-        self.delegate.stack.backgroundContext.perform {
-            newPin.flickrPage = newPin.flickrPage + 1
-            do {
-                try self.delegate.stack.backgroundContext.save()
-            } catch {
-                print("Error saving background context after saving page number of Pin.")
-            }
-            
-            print("Downloading photos from page: \(newPin.flickrPage)")
-            DownloadService.shared.searchFlickrAndSavePhotos(pin: newPin) { (error, result) in
+        self.delegate.stack.backgroundContext.perform {           
+            let pageChoosen = Int16(arc4random_uniform(UInt32((newPin.flickrPage))))
+            print("Downloading photos from page: \(pageChoosen)")
+            DownloadService.shared.searchFlickrAndSavePhotos(pin: newPin, pageNumber: pageChoosen) { (error, result) in
                 if result {
                     print("Flickr search finished.")
                 } else {

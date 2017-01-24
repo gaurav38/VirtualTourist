@@ -12,7 +12,7 @@ class VirtualTouristClient {
     
     static let shared = VirtualTouristClient()
     
-    func searchByLatLon(latitude: Double, longitude: Double, pageNumber: Int16, callback: @escaping (_ error: String?, _ response: [FlickrPhoto]?) -> ()) {
+    func searchByLatLon(latitude: Double, longitude: Double, pageNumber: Int16, callback: @escaping (_ error: String?, _ response: [FlickrPhoto]?, _ numberOfPages: Int16?) -> ()) {
         let methodParameters = [
             Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
             Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
@@ -21,8 +21,7 @@ class VirtualTouristClient {
             Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
             Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
             Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback,
-            Constants.FlickrParameterKeys.Page: String(pageNumber),
-            Constants.FlickrParameterKeys.PerPage: Constants.FlickrParameterValues.PerPage
+            Constants.FlickrParameterKeys.Page: String(pageNumber)
         ]
         
         // create session and request
@@ -35,7 +34,7 @@ class VirtualTouristClient {
             // if an error occurs, print it and re-enable the UI
             func displayError(_ error: String) {
                 print(error)
-                callback(error, nil)
+                callback(error, nil, nil)
             }
             
             /* GUARD: Was there an error? */
@@ -77,21 +76,40 @@ class VirtualTouristClient {
                 return
             }
             
-            let photos = photosDictionary[Constants.FlickrResponseKeys.Photo] as! [[String: AnyObject]]
-            var callbackData = [FlickrPhoto]()
-            
-            for photo in photos {
-                if let photoId = photo[Constants.FlickrResponseKeys.Id] as? String, let photoUrl = photo[Constants.FlickrParameterValues.MediumURL] as? String {
-                    let flickrPhoto = FlickrPhoto(id: photoId, url: photoUrl)
-                    callbackData.append(flickrPhoto)
-                }
+            guard let numberOfPages = photosDictionary["pages"] as? Int16 else {
+                return
             }
             
-            callback(nil, callbackData)
+            guard let photos = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]] else {
+                return
+            }
+            
+            callback(nil, self.getRandomFlickrPhotos(from: photos), numberOfPages)
         })
         
         // start the task!
         task.resume()
+    }
+    
+    func getRandomFlickrPhotos(from photos: [[String: AnyObject]]) -> [FlickrPhoto] {
+        let startingPoint = Int(arc4random_uniform(UInt32(photos.count - Constants.Flickr.NumberOfPhotosToSelect)))
+        var currentPhotoNumber = 0
+        var numberOfPhotosPicked = 0
+        var finalPhotoArray = [FlickrPhoto]()
+        
+        for photo in photos {
+            if currentPhotoNumber >= startingPoint {
+                if numberOfPhotosPicked < Constants.Flickr.NumberOfPhotosToSelect {
+                    if let photoId = photo[Constants.FlickrResponseKeys.Id] as? String, let photoUrl = photo[Constants.FlickrParameterValues.MediumURL] as? String {
+
+                        finalPhotoArray.append(FlickrPhoto(id: photoId, url: photoUrl))
+                        numberOfPhotosPicked += 1
+                    }
+                }
+            }
+            currentPhotoNumber += 1
+        }
+        return finalPhotoArray
     }
     
     fileprivate func bboxString(latitude: Double, longitude: Double) -> String {

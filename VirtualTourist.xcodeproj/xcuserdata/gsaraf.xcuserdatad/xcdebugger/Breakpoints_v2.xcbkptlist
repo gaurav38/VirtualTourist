@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "VirtualTourist/VirtualTouristClient.swift"
-            timestampString = "506731604.463531"
+            timestampString = "506923447.991871"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "38"
-            endingLineNumber = "38"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
             landmarkName = "displayError(_:)"
             landmarkType = "9">
          </BreakpointContent>
