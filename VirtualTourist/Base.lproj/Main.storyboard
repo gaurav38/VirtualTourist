@@ -130,7 +130,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="jj0-mc-nuH"/>
                                     <barButtonItem title="New Collection" id="bKE-nZ-wkW" userLabel="NewCollection">
                                         <connections>
-                                            <action selector="newCollectionButtonPressed:" destination="pfC-Vp-Tm0" id="NfT-ty-nn5"/>
+                                            <action selector="getNewCollection:" destination="pfC-Vp-Tm0" id="ywb-6E-g0m"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="FGn-Tq-xfO"/>

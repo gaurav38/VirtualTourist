@@ -68,7 +68,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
     
     func setUpMapView() {
         gestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(dropPin))
-        gestureRecognizer.minimumPressDuration = 1.0
+        gestureRecognizer.minimumPressDuration = 0.5
         gestureRecognizer.allowableMovement = 1
         mapView.addGestureRecognizer(gestureRecognizer)
         mapView.delegate = self
@@ -91,20 +91,20 @@ extension TravelLocationsViewController: MKMapViewDelegate {
             annotation.coordinate = newCoordinates
             mapView.addAnnotation(annotation)
             
-            let pin = Pin(latitude: newCoordinates.latitude, longitude: newCoordinates.longitude, flickrPage: 1, context: delegate.stack.backgroundContext)
-            
-            do {
-                try delegate.stack.backgroundContext.save()
-            } catch {
-                print("Error saving Pin")
-            }
-            
-            DownloadService.shared.searchFlickrAndSavePhotos(pin: pin) { (error, result) in
-                if result! {
-                    print("Flickr search finished.")
-                } else {
-                    if let error = error {
-                        self.displayError(error: error)
+            delegate.stack.backgroundContext.perform {
+                let pin = Pin(latitude: newCoordinates.latitude, longitude: newCoordinates.longitude, flickrPage: 1, context: self.delegate.stack.backgroundContext)
+                do {
+                    try self.delegate.stack.backgroundContext.save()
+                } catch {
+                    print("Error saving Pin")
+                }
+                DownloadService.shared.searchFlickrAndSavePhotos(pin: pin) { (error, result) in
+                    if result {
+                        print("Flickr search finished.")
+                    } else {
+                        if let error = error {
+                            self.displayError(error: error)
+                        }
                     }
                 }
             }
@@ -126,6 +126,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        mapView.deselectAnnotation(view.annotation, animated: true)
         
         searchPin(coordinates: (view.annotation?.coordinate)!) { (error, pin) -> Void in
             if let pin = pin {

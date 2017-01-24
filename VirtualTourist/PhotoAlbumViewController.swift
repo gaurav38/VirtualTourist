@@ -60,13 +60,18 @@ class PhotoAlbumViewController: CoreDataCollectionViewController {
     {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
     }
-
-    @IBAction func newCollectionButtonPressed(_ sender: Any) {
+    
+    @IBAction func getNewCollection(_ sender: Any) {
+        print("Deleting all photos.")
         deleteAllPhotos { (result) in
-            if result! {
+            if result {
+                print("Getting pin from background context.")
                 self.getPinFromBackgroundContext { (result, pin) in
                     if let pin = pin {
-                        getNewPhotos(newPin: pin)
+                        DispatchQueue.main.async {
+                            print("Getting new photos now.")
+                            self.getNewPhotos(newPin: pin)
+                        }
                     }
                 }
             }
@@ -110,12 +115,23 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageViewCell", for: indexPath) as! ImageViewCell
+        cell.image.image = nil
         
         let photo = fetchedResultsController?.object(at: indexPath) as? Photo
         
         if let photo = photo {
             if photo.image == nil {
                 cell.activityIndicator.startAnimating()
+                DownloadService.shared.downloadImage(imagePath: photo.imageUrl!) { (data, error) in
+                    if error != nil {
+                        print(error!)
+                    } else {
+                        DispatchQueue.main.async {
+                            photo.image = NSData(data: data!)
+                            self.delegate.stack.save()
+                        }
+                    }
+                }
             } else {
                 cell.image.image = UIImage(data: photo.image! as Data)
                 cell.activityIndicator.stopAnimating()
@@ -127,7 +143,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
 }
 
 extension PhotoAlbumViewController {
-    func deleteAllPhotos(callback: (_ result: Bool?) -> Void) {
+    func deleteAllPhotos(callback: (_ result: Bool) -> Void) {
         let photos = pin?.photos
         if let photos = photos {
             for photo in photos {
@@ -139,44 +155,50 @@ extension PhotoAlbumViewController {
     }
     
     func getNewPhotos(newPin: Pin) {
-        currentPage = currentPage + 1
-        pin?.flickrPage = currentPage
-        do {
-            try delegate.stack.backgroundContext.save()
-        } catch {
-            print("Error saving background context after saving page number of Pin.")
-        }
-        
-        print("Downloading photos from page: \(pin?.flickrPage)")
-        DownloadService.shared.searchFlickrAndSavePhotos(pin: newPin) { (error, result) in
-            if result! {
-                print("Flickr search finished.")
-            } else {
-                if let error = error {
-                    self.displayError(error: error)
+        self.delegate.stack.backgroundContext.perform {
+            newPin.flickrPage = newPin.flickrPage + 1
+            do {
+                try self.delegate.stack.backgroundContext.save()
+            } catch {
+                print("Error saving background context after saving page number of Pin.")
+            }
+            
+            print("Downloading photos from page: \(newPin.flickrPage)")
+            DownloadService.shared.searchFlickrAndSavePhotos(pin: newPin) { (error, result) in
+                if result {
+                    print("Flickr search finished.")
+                } else {
+                    if let error = error {
+                        self.displayError(error: error)
+                    }
                 }
             }
         }
     }
     
-    func getPinFromBackgroundContext(callback: (_ result: Bool, _ pin: Pin?) -> Void) {
-        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
-        fr.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true),
-                              NSSortDescriptor(key: "longitude", ascending: true)]
-        let latPred = NSPredicate(format: "latitude = %@", argumentArray: [pin!.latitude])
-        let lonPred = NSPredicate(format: "longitude = %@", argumentArray: [pin!.longitude])
-        let andPredicate = NSCompoundPredicate(type: NSCompoundPredicate.LogicalType.and, subpredicates: [latPred, lonPred])
-        fr.predicate = andPredicate
-        let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.backgroundContext, sectionNameKeyPath: nil, cacheName: nil)
-        
-        do {
-            try fc.performFetch()
-        } catch {
-            print("Error fetching Pin in background context.")
-            callback(false, nil)
+    func getPinFromBackgroundContext(callback: @escaping (_ result: Bool, _ pin: Pin?) -> Void) {
+        let latitude = pin!.latitude
+        let longitude = pin!.longitude
+        self.delegate.stack.backgroundContext.perform {
+            let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+            fr.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true),
+                                  NSSortDescriptor(key: "longitude", ascending: true)]
+            let latPred = NSPredicate(format: "latitude = %@", argumentArray: [latitude])
+            let lonPred = NSPredicate(format: "longitude = %@", argumentArray: [longitude])
+            let andPredicate = NSCompoundPredicate(type: NSCompoundPredicate.LogicalType.and, subpredicates: [latPred, lonPred])
+            fr.predicate = andPredicate
+            let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: self.delegate.stack.backgroundContext, sectionNameKeyPath: nil, cacheName: nil)
+            
+            do {
+                try fc.performFetch()
+            } catch {
+                print("Error fetching Pin in background context.")
+                callback(false, nil)
+            }
+            
+            let selectedPin = fc.fetchedObjects?[0] as! Pin
+            print("Found a saved pin. latitude = \(selectedPin.latitude), longitude = \(selectedPin.longitude)")
+            callback(true, selectedPin)
         }
-        let selectedPin = fc.fetchedObjects?[0] as! Pin
-        print("Found a saved pin. latitude = \(selectedPin.latitude), longitude = \(selectedPin.longitude)")
-        callback(true, selectedPin)
     }
 }
