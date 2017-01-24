@@ -21,13 +21,11 @@ class PhotoAlbumViewController: CoreDataCollectionViewController {
         super.viewDidLoad()
         setUpMapView()
         collectionView.delegate = self
-        print("Number of photos = \((pin?.photos?.count)!)")
         collectionView.dataSource = self
         updateItemSizeBasedOnOrientation()
     }
     
-    func updateItemSizeBasedOnOrientation()
-    {
+    func updateItemSizeBasedOnOrientation() {
         var width: CGFloat = 0.0
         var height: CGFloat = 0.0
         let space: CGFloat = 3.0
@@ -49,25 +47,20 @@ class PhotoAlbumViewController: CoreDataCollectionViewController {
         }
     }
     
-    func subscribeToOrientationChangeNotification()
-    {
+    func subscribeToOrientationChangeNotification() {
         NotificationCenter.default.addObserver(self, selector: #selector(updateItemSizeBasedOnOrientation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
     }
     
-    func unsubscribeToOrientationChangeNotification()
-    {
+    func unsubscribeToOrientationChangeNotification() {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
     }
     
     @IBAction func getNewCollection(_ sender: Any) {
-        print("Deleting all photos.")
         deleteAllPhotos { (result) in
             if result {
-                print("Getting pin from background context.")
                 self.getPinFromBackgroundContext { (result, pin) in
                     if let pin = pin {
                         DispatchQueue.main.async {
-                            print("Getting new photos now.")
                             self.getNewPhotos(newPin: pin)
                         }
                     }
@@ -155,7 +148,6 @@ extension PhotoAlbumViewController {
     func getNewPhotos(newPin: Pin) {
         self.delegate.stack.backgroundContext.perform {           
             let pageChoosen = Int16(arc4random_uniform(UInt32((newPin.flickrPage))))
-            print("Downloading photos from page: \(pageChoosen)")
             DownloadService.shared.searchFlickrAndSavePhotos(pin: newPin, pageNumber: pageChoosen) { (error, result) in
                 if result {
                     print("Flickr search finished.")

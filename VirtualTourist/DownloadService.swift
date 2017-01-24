@@ -44,11 +44,12 @@ class DownloadService {
         
         let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
             
-            if error != nil {
+            guard error == nil else {
                 completionHandler(nil, "Could not download image \(imagePath)")
-            } else {
-                completionHandler(data, nil)
+                return
             }
+            
+            completionHandler(data, nil)
         }
         
         task.resume()

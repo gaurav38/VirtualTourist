@@ -9,8 +9,8 @@
 import Foundation
 
 struct FlickrPhoto {
-    var photoId: String
-    var photoUrl: String
+    let photoId: String
+    let photoUrl: String
     
     init(id: String, url: String) {
         self.photoId = id
